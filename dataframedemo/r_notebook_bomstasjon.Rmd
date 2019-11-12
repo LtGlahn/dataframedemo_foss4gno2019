@@ -8,16 +8,20 @@ library(sf)
 library(tidyverse)
 library(mapview)
 library(dplyr)
-# library(tmap)
-#library(leaflet)
 ```
 
 
 Laster inn csv med NVDB bomstasjoner 
 ```{r}
 tmp <- read.csv2( '45_bomstasjon-eksport.csv', sep=";", encoding = 'latin1')
+```
+
+Totalt `r length(tmp)` bomstasjoner med takst liten bil fra `r min(tmp$Takst.liten.bil, na.rm = TRUE)` til `r max(tmp$Takst.liten.bil, na.rm = TRUE)`. 
+
+```{r}
 tmp
 ```
+
 
 ## Konverterer DataFrame til SF (simple feature)
 
@@ -68,7 +72,7 @@ colnames(bomst_subsett )[which(names(bomst_subsett) ==
 mapview( bomst_subsett, zcol = 'TakstLitenBil', legend = TRUE )
 ```
 
-# Tilpasser skala til data
+# Knar litt på Takst liten bil
 
 
 ```{r}
