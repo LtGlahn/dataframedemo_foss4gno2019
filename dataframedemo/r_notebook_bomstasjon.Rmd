@@ -1,0 +1,47 @@
+---
+title: "R Notebook bomstasjon eksempel"
+output: html_notebook
+---
+
+```{r}
+library(sf)
+library(tidyverse)
+library(mapview)
+# library(tmap)
+#library(leaflet)
+```
+
+
+Laster inn csv med NVDB bomstasjoner 
+```{r}
+tmp <- read.csv2( '45_bomstasjon-eksport.csv', sep=";", encoding = 'latin1')
+tmp
+```
+
+## Konverterer DataFrame til SF (simple feature)
+
+```{r}
+bomst <- st_as_sf(tmp, wkt='geometri'  )
+st_crs(bomst) = 25833
+
+# Fjerner mellomrom (som er blitt til .) fra den kolonnen 
+# vi vil plotte
+colnames(bomst)[which(names(bomst) == "Takst.liten.bil")] <- "TakstLitenBil"
+
+# En versjon med lat/lon: 
+bomst_latlon <- st_transform(bomst, crs = 4326)
+
+```
+
+
+
+```{r}
+mapview( bomst, zcol = 'TakstLitenBil', legend = TRUE )
+```
+
+
+
+
+
+
+
