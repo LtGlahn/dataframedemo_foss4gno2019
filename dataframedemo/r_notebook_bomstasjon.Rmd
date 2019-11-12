@@ -3,10 +3,11 @@ title: "R Notebook bomstasjon eksempel"
 output: html_notebook
 ---
 
-```{r}
+```{r,message=FALSE}
 library(sf)
 library(tidyverse)
 library(mapview)
+library(dplyr)
 # library(tmap)
 #library(leaflet)
 ```
@@ -20,6 +21,10 @@ tmp
 
 ## Konverterer DataFrame til SF (simple feature)
 
+Dette ligner veldig på hvordan du angir geometrikolonne i postgis... ;) 
+
+**DataFrame = Blanding mellom SQL-aktig objekt og regneark**
+
 ```{r}
 bomst <- st_as_sf(tmp, wkt='geometri'  )
 st_crs(bomst) = 25833
@@ -28,20 +33,57 @@ st_crs(bomst) = 25833
 # vi vil plotte
 colnames(bomst)[which(names(bomst) == "Takst.liten.bil")] <- "TakstLitenBil"
 
-# En versjon med lat/lon: 
+# En versjon med lat/lon - _se hvor rett fram jeg kan gjøre koordinattransformasjon:_ 
 bomst_latlon <- st_transform(bomst, crs = 4326)
 
 ```
 
-
+# Vis data på kart, første versjon
 
 ```{r}
 mapview( bomst, zcol = 'TakstLitenBil', legend = TRUE )
 ```
 
+# Vis data på kart, andre versjon 
+
+Lager et subsett med kun de relevante feltene
+
+```{r}
+colnames(bomst)
+```
+
+# Forenkle datasettet
+
+Vi tar kun med et subsett av kolonnene og gir kort, nytt navn til den lengste:
+
+```{r}
+bomst_subsett <- dplyr::select( bomst, vegobjektid,  
+  Navn.bompengeanlegg..fra.CS., Navn.bomstasjon, TakstLitenBil, 
+  Takst.stor.bil, vegreferanse)
+
+colnames(bomst_subsett )[which(names(bomst_subsett) == 
+            "Navn.bompengeanlegg..fra.CS.")] <- "Bompengeanlegg"
 
 
+mapview( bomst_subsett, zcol = 'TakstLitenBil', legend = TRUE )
+```
+
+# Tilpasser skala til data
 
 
+```{r}
+summary( bomst$TakstLitenBil)
+```
+
+
+```{r}
+hist( bomst$TakstLitenBil)
+```
+
+Artig spreding. La oss se nærmere på dem over 50
+
+```{r}
+plot( bomst$TakstLitenBil, bomst$TakstLitenBil )
+```
 
 
